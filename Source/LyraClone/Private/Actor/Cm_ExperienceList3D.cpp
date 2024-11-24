@@ -40,16 +40,19 @@ void ACm_ExperienceList3D::BeginPlay()
 
 	TArray<FPrimaryAssetId> Loc_Arr_PrimaryAssetId;
 	UAssetManager& AssetManager{UAssetManager::Get()};
+	// AssetManager에서 가져오고 싶은 Primary Asset Type에 대해 Id List를 가져온다.
 	if(bool Success{AssetManager.GetPrimaryAssetIdList(FPrimaryAssetType(L"Cm_UserFacingExperience"), Loc_Arr_PrimaryAssetId)})
 	{
-		FStreamableManager& StreamableManager{AssetManager.GetStreamableManager()};
+		// AssetManager에 Id List를 줘서 AsyncLoad하고 이에 대해 결과를 받을 Handle을 등록한다.
 		Handle_OnLoadComplete = AssetManager.LoadPrimaryAssets(Loc_Arr_PrimaryAssetId);
 		if(Handle_OnLoadComplete.IsValid())
 		{
+			// 이미 Load완료된 경우 Load가 완료되었을 때 실행할 함수를 실행한다.
 			if(Handle_OnLoadComplete->HasLoadCompleted())
 			{
 				OnPrimaryAssetListLoaded();	
 			}
+			// Delegate로 Complete되었을 때 실행할 함수를 등록한다.
 			else
 			{
 				Handle_OnLoadComplete->BindCompleteDelegate(FStreamableDelegate::CreateUObject(this, &ThisClass::OnPrimaryAssetListLoaded));	

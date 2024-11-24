@@ -3,6 +3,7 @@
 
 #include "System/Cm_AssetManager.h"
 
+#include "Cm_GameplayTags.h"
 #include "Cm_LogChannels.h"
 
 UCm_AssetManager::UCm_AssetManager(const FObjectInitializer& Initializer)
@@ -30,6 +31,13 @@ bool UCm_AssetManager::ShouldLogAssetLoads()
 	const TCHAR* CommandLineContent{FCommandLine::Get()};
 	static bool bLogAssetLoads = FParse::Param(CommandLineContent, L"LogAssetLoads");
 	return bLogAssetLoads;
+}
+
+void UCm_AssetManager::StartInitialLoading()
+{
+	Super::StartInitialLoading();
+
+	FCm_GameplayTags::InitializeNativeTags();
 }
 
 UObject* UCm_AssetManager::SynchronousLoadAsset(const FSoftObjectPath& AssetPath)

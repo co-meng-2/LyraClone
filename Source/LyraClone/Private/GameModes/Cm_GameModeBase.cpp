@@ -5,6 +5,7 @@
 
 #include "Cm_LogChannels.h"
 #include "Character/Cm_Character.h"
+#include "Character/Cm_PawnExtensionComponent.h"
 #include "GameModes/Cm_ExperienceDefinition.h"
 #include "GameModes/Cm_ExperienceManagerComponent.h"
 #include "GameModes/Cm_GameStateBase.h"
@@ -63,7 +64,7 @@ void ACm_GameModeBase::InitGameState()
 	ExperienceManager->CallOrRegister_OnExperienceLoaded(FOnCmExperienceLoaded::FDelegate::CreateUObject(this, &ThisClass::OnExperienceLoaded));
 }
 
-void ACm_GameModeBase::OnExperienceLoaded(const UCm_ExperienceDefinition* CurrentExperience)
+void ACm_GameModeBase::OnExperienceLoaded(const UCm_ExperienceDefinition* CurrantExperience)
 {
 	for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
 	{
@@ -103,11 +104,39 @@ UClass* ACm_GameModeBase::GetDefaultPawnClassForController_Implementation(AContr
 	return Super::GetDefaultPawnClassForController_Implementation(InController);
 }
 
-APawn* ACm_GameModeBase::SpawnDefaultPawnAtTransform_Implementation(AController* NewPlayer,
-	const FTransform& SpawnTransform)
+APawn* ACm_GameModeBase::SpawnDefaultPawnFor_Implementation(AController* NewPlayer, AActor* StartSpot)
 {
-	UE_LOG(LogCm, Warning, L"%hs() Called", __FUNCTION__);
-	return Super::SpawnDefaultPawnAtTransform_Implementation(NewPlayer, SpawnTransform);
+	return Super::SpawnDefaultPawnFor_Implementation(NewPlayer, StartSpot);
+}
+
+APawn* ACm_GameModeBase::SpawnDefaultPawnAtTransform_Implementation(AController* NewPlayer,
+                                                                    const FTransform& SpawnTransform)
+{
+	// UE_LOG(LogCm, Warning, L"%hs() Called", __FUNCTION__);
+	FActorSpawnParameters SpawnInfo;
+	SpawnInfo.Instigator = GetInstigator();
+	SpawnInfo.ObjectFlags |= RF_Transient;
+	SpawnInfo.bDeferConstruction = true;
+
+	if (UClass* PawnClass = GetDefaultPawnClassForController(NewPlayer))
+	{
+		if (APawn* SpawnedPawn = GetWorld()->SpawnActor<APawn>(PawnClass, SpawnTransform, SpawnInfo))
+		{
+			// FindPawnExtensionComponent 구현
+			if (UCm_PawnExtensionComponent* PawnExtComp = UCm_PawnExtensionComponent::FindPawnExtensionComponent(SpawnedPawn))
+			{
+				if (const UCm_PawnData* PawnData = GetPawnDataForController(NewPlayer))
+				{
+					PawnExtComp->SetPawnData(PawnData);
+				}
+			}
+
+			SpawnedPawn->FinishSpawning(SpawnTransform);
+			return SpawnedPawn;
+		}
+	}
+
+	return nullptr;
 }
 
 bool ACm_GameModeBase::IsExperienceLoaded()

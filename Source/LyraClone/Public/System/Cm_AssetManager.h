@@ -23,6 +23,8 @@ public:
 	// Arguments를 Parse해서 사용할 수 있다.
 	static bool ShouldLogAssetLoads();
 
+	virtual void StartInitialLoading() override;
+	
 	
 	// 동기 로딩 시간 체크용.
 	static UObject* SynchronousLoadAsset(const FSoftObjectPath& AssetPath);
@@ -73,12 +75,13 @@ AssetType* UCm_AssetManager::GetAsset(const TSoftObjectPtr<AssetType>& AssetPoin
 	return LoadedAsset;
 }
 
+// BP
 // TSoftClassPtr -> TSubClassOf 전용 Wrapper 
 template <typename AssetType>
 TSubclassOf<AssetType> UCm_AssetManager::GetSubclass(const TSoftClassPtr<AssetType>& AssetPointer, bool bKeepInMemory)
 {
 	TSubclassOf<AssetType> LoadedSubclass;
-
+	
 	const FSoftObjectPath& AssetPath = AssetPointer.ToSoftObjectPath();
 	if (AssetPath.IsValid())
 	{

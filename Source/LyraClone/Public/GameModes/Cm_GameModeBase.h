@@ -28,10 +28,14 @@ public:
 
 	virtual void InitGameState() final;
 	void OnExperienceLoaded(const UCm_ExperienceDefinition* CurrentExperience);
-	
+
+	// ~ Begin GameModeBase Spawn Player Pawn Interface
 	virtual void HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer) override;
 	virtual UClass* GetDefaultPawnClassForController_Implementation(AController* InController) override;
+	virtual APawn* SpawnDefaultPawnFor_Implementation(AController* NewPlayer, AActor* StartSpot) override;
 	virtual APawn* SpawnDefaultPawnAtTransform_Implementation(AController* NewPlayer, const FTransform& SpawnTransform) override;
+	// ~ End GameModeBase Spawn Player Pawn Interface
+	
 
 	bool IsExperienceLoaded();
 	// PawnData를 가져오는 역할은 GameModeBase가 담당하도록 정한다.

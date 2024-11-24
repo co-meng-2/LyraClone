@@ -42,13 +42,16 @@ void UCm_ExperienceManagerComponent::ServerSetCurrentExperience(FPrimaryAssetId 
 	StartExperienceLoad();
 }
 
+
+
 void UCm_ExperienceManagerComponent::StartExperienceLoad()
 {
 	check(CurrentExperience);
 	check(LoadState == ECmExperienceLoadState::Unloaded);
-
+	
 	LoadState = ECmExperienceLoadState::Loading;
 	UCm_AssetManager& AssetManager{UCm_AssetManager::Get()};
+	
 
 	// Bundle을 쓰는 이유 -> TryLoad로 이미 ExperienceDef를 load했다.
 	// 하지만 이는 관련된 자산까지 포함하지 않는다.
@@ -95,6 +98,7 @@ void UCm_ExperienceManagerComponent::StartExperienceLoad()
 	}
 
 }
+
 
 void UCm_ExperienceManagerComponent::OnExperienceLoadComplete()
 {

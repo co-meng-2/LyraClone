@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -16,7 +14,7 @@ class LYRACLONE_API UCm_UserFacingExperience : public UPrimaryDataAsset
 	
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Experience, meta = (AllowedTypes = "Map"))
-	FPrimaryAssetId MapID;
+	FPrimaryAssetId MapId;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Experience, meta = (AllowedTypes = "Cm_ExperienceDefinition"))
-	FPrimaryAssetId ExperienceID;
+	FPrimaryAssetId ExperienceId;
 };

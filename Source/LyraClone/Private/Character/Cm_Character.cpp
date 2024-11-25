@@ -3,6 +3,7 @@
 
 #include "Character/Cm_Character.h"
 
+#include "Camera/Cm_CameraComponent.h"
 #include "Character/Cm_PawnExtensionComponent.h"
 
 // Sets default values
@@ -14,6 +15,8 @@ ACm_Character::ACm_Character(const FObjectInitializer& ObjectInitializer)
 	PrimaryActorTick.bStartWithTickEnabled = false;
 
 	PawnExtComp = CreateDefaultSubobject<UCm_PawnExtensionComponent>(L"PawnExtenstion");
+
+	CameraComp = CreateDefaultSubobject<UCm_CameraComponent>(L"Camera");
 }
 
 void ACm_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

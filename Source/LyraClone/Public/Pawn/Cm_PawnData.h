@@ -6,6 +6,7 @@
 #include "Engine/DataAsset.h"
 #include "Cm_PawnData.generated.h"
 
+class UCm_CameraMode;
 /**
  * 
  */
@@ -16,5 +17,8 @@ class LYRACLONE_API UCm_PawnData : public UPrimaryDataAsset
 
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Cm|Pawn")
-	TSubclassOf<APawn> PawnClass;
+	TSubclassOf<APawn> DefaultPawnClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Cm|Camera")
+	TSubclassOf<UCm_CameraMode> DefaultCameraModeClass;
 };

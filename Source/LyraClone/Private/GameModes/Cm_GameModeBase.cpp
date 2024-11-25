@@ -95,9 +95,9 @@ UClass* ACm_GameModeBase::GetDefaultPawnClassForController_Implementation(AContr
 {
 	if (const UCm_PawnData* PawnData{GetPawnDataForController(InController)})
 	{
-		if (PawnData->PawnClass)
+		if (PawnData->DefaultPawnClass)
 		{
-			return PawnData->PawnClass;
+			return PawnData->DefaultPawnClass;
 		}
 	}
 	

@@ -4,6 +4,7 @@
 #include "GameFramework/Character.h"
 #include "Cm_Character.generated.h"
 
+class UCm_CameraComponent;
 class UCm_PawnExtensionComponent;
 
 UCLASS()
@@ -16,6 +17,7 @@ public:
 
 public:
 	TObjectPtr<UCm_PawnExtensionComponent> PawnExtComp;
+	TObjectPtr<UCm_CameraComponent> CameraComp;
 
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 };

@@ -2,6 +2,7 @@
 
 #include "Cm_GameplayTags.h"
 #include "Cm_LogChannels.h"
+#include "Camera/Cm_CameraComponent.h"
 #include "Character/Cm_PawnExtensionComponent.h"
 #include "Components/GameFrameworkComponentManager.h"
 #include "Player/Cm_PlayerState.h"
@@ -115,6 +116,22 @@ void UCm_HeroComponent::HandleChangeInitState(UGameFrameworkComponentManager* Ma
 {
 	// HeroComponent는 Player Side, Input, Camera등을 관리하는 Component이다.
 	// 이 부분에서 각 State마다 초기화, 관리할 내용이 추가될 것이다.
+	const FCm_GameplayTags& InitTags{FCm_GameplayTags::Get()};
+
+	APawn* Loc_Pawn = GetPawn<APawn>();
+	const bool bIsLocallyControlled{Loc_Pawn->IsLocallyControlled()};
+	const bool bHasAuthority{HasAuthority()};
+	
+	if(CurrentState == InitTags.InitState_DataAvailable && DesiredState == InitTags.InitState_DataInitialized)
+	{
+		if(bIsLocallyControlled || HasAuthority())
+		{
+			if(UCm_CameraComponent* CameraComponent{UCm_CameraComponent::FindCameraComponent(Loc_Pawn)})
+			{
+				CameraComponent->DetermineCameraModeDelegate.BindUObject(this, &ThisClass::DetermineCameraMode);
+			}
+		}
+	}
 }
 
 void UCm_HeroComponent::CheckDefaultInitialization()
@@ -139,6 +156,25 @@ FGameplayTag UCm_HeroComponent::ContinueInitStateChain(const TArray<FGameplayTag
 void UCm_HeroComponent::UnregisterInitStateFeature()
 {
 	IGameFrameworkInitStateInterface::UnregisterInitStateFeature();
+}
+
+TSubclassOf<UCm_CameraMode> UCm_HeroComponent::DetermineCameraMode() const
+{
+	const APawn* Pawn = GetPawn<APawn>();
+	if (!Pawn)
+	{
+		return nullptr;
+	}
+
+	if (UCm_PawnExtensionComponent* PawnExtComp = UCm_PawnExtensionComponent::FindPawnExtensionComponent(Pawn))
+	{
+		if (const UCm_PawnData* PawnData = PawnExtComp->GetPawnData<UCm_PawnData>())
+		{
+			return PawnData->DefaultCameraModeClass;
+		}
+	}
+
+	return nullptr;
 }
 
 void UCm_HeroComponent::BindOnActorInitStateChanged(FName FeatureName, FGameplayTag RequiredState, bool bCallIfReached)

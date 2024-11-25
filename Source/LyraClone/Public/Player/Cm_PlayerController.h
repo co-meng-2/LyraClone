@@ -13,5 +13,8 @@ UCLASS()
 class LYRACLONE_API ACm_PlayerController : public APlayerController
 {
 	GENERATED_BODY()
+
+public:
+	ACm_PlayerController(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 	
 };

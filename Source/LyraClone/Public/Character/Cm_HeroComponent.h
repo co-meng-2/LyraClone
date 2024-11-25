@@ -7,6 +7,7 @@
 #include "Components/PawnComponent.h"
 #include "Cm_HeroComponent.generated.h"
 
+class UCm_CameraMode;
 /**
  * 
  */
@@ -39,4 +40,6 @@ public:
 	virtual void HandleChangeInitState(UGameFrameworkComponentManager* Manager, FGameplayTag CurrentState, FGameplayTag DesiredState) override;
 	virtual void UnregisterInitStateFeature() override;
 	// ~End IGameFrameworkInitStateInterface
+
+	TSubclassOf<UCm_CameraMode> DetermineCameraMode() const;
 };

@@ -5,8 +5,10 @@
 #include "CoreMinimal.h"
 #include "Components/GameFrameworkInitStateInterface.h"
 #include "Components/PawnComponent.h"
+#include "Input/Cm_MappableConfigPair.h"
 #include "Cm_HeroComponent.generated.h"
 
+struct FInputActionValue;
 class UCm_CameraMode;
 /**
  * 
@@ -42,4 +44,11 @@ public:
 	// ~End IGameFrameworkInitStateInterface
 
 	TSubclassOf<UCm_CameraMode> DetermineCameraMode() const;
+	
+	void InitializePlayerInput(UInputComponent* PlayerInputComponent);
+	void Input_Move(const FInputActionValue& InputActionValue);
+	void Input_LookMouse(const FInputActionValue& InaputActionValue);
+	
+	UPROPERTY(EditAnywhere)
+	TArray<FCm_MappableConfigPair> DefaultInputConfigs;
 };

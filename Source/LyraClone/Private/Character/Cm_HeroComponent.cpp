@@ -2,10 +2,16 @@
 
 #include "Cm_GameplayTags.h"
 #include "Cm_LogChannels.h"
+#include "EnhancedInputSubsystems.h"
 #include "Camera/Cm_CameraComponent.h"
 #include "Character/Cm_PawnExtensionComponent.h"
 #include "Components/GameFrameworkComponentManager.h"
+#include "Input/Cm_EnhancedInputComponent.h"
+#include "Input/Cm_InputConfig.h"
 #include "Player/Cm_PlayerState.h"
+#include "Input/Cm_MappableConfigPair.h"
+#include "PlayerMappableInputConfig.h"
+#include "Player/Cm_PlayerController.h"
 
 const FName UCm_HeroComponent::NAME_ActorFeatureName{"Hero"};
 
@@ -130,6 +136,14 @@ void UCm_HeroComponent::HandleChangeInitState(UGameFrameworkComponentManager* Ma
 			{
 				CameraComponent->DetermineCameraModeDelegate.BindUObject(this, &ThisClass::DetermineCameraMode);
 			}
+
+			if(ACm_PlayerController* Loc_PC{GetController<ACm_PlayerController>()})
+			{
+				if(Loc_Pawn->InputComponent)
+				{
+					InitializePlayerInput(Loc_Pawn->InputComponent);
+				}
+			}
 		}
 	}
 }
@@ -175,6 +189,112 @@ TSubclassOf<UCm_CameraMode> UCm_HeroComponent::DetermineCameraMode() const
 	}
 
 	return nullptr;
+}
+
+void UCm_HeroComponent::InitializePlayerInput(UInputComponent* PlayerInputComponent)
+{
+	check(PlayerInputComponent);
+
+	const APawn* Pawn = GetPawn<APawn>();
+	if (!Pawn)
+	{
+		return;
+	}
+
+	// LocalPlayer를 가져오기 위해
+	const APlayerController* PC = GetController<APlayerController>();
+	check(PC);
+
+	// EnhancedInputLocalPlayerSubsystem 가져오기 위해
+	const ULocalPlayer* LP = PC->GetLocalPlayer();
+	check(LP);
+
+	UEnhancedInputLocalPlayerSubsystem* Subsystem = LP->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
+	check(Subsystem);
+
+	// EnhancedInputLocalPlayerSubsystem에 MappingContext를 비워준다:
+	Subsystem->ClearAllMappings();
+
+	// PawnExtensionComponent -> PawnData -> InputConfig 존재 유무 판단:
+	if (const UCm_PawnExtensionComponent* PawnExtComp = UCm_PawnExtensionComponent::FindPawnExtensionComponent(Pawn))
+	{
+		if (const UCm_PawnData* PawnData = PawnExtComp->GetPawnData<UCm_PawnData>())
+		{
+			if (const UCm_InputConfig* InputConfig = PawnData->Inputconfig)
+			{
+				const FCm_GameplayTags& GameplayTags = FCm_GameplayTags::Get();
+
+				// HeroComponent 가지고 있는 Input Mapping Context를 순회하며, EnhancedInputLocalPlayerSubsystem에 추가한다
+				for (const FCm_MappableConfigPair& Pair : DefaultInputConfigs)
+				{
+					if (Pair.bShouldActivateAutomatically)
+					{
+						FModifyContextOptions Options = {};
+						// Binding되는 중에 눌리고 있던 Key에 대해, 다시 뗄 때 까지 Trigger하지 않는다.
+						Options.bIgnoreAllPressedKeysUntilRelease = false;
+
+						// 내부적으로 Input Mapping Context를 추가한다:
+						// - AddPlayerMappableConfig를 간단히 보는 것을 추천
+						Subsystem->AddPlayerMappableConfig(Pair.Config.LoadSynchronous(), Options);	
+					}
+				}
+
+				UCm_EnhancedInputComponent* CmEIComp = CastChecked<UCm_EnhancedInputComponent>(PlayerInputComponent);
+				{
+					CmEIComp->BindNativeAction(InputConfig, GameplayTags.InputTag_Move, ETriggerEvent::Triggered, this, &ThisClass::Input_Move, false);
+					CmEIComp->BindNativeAction(InputConfig, GameplayTags.InputTag_Look_Mouse, ETriggerEvent::Triggered, this, &ThisClass::Input_LookMouse, false);
+				}
+			}
+		}
+	}
+}
+
+void UCm_HeroComponent::Input_Move(const FInputActionValue& InputActionValue)
+{
+	APawn* Pawn = GetPawn<APawn>();
+	AController* Controller = Pawn ? Pawn->GetController() : nullptr;
+
+	if (Controller)
+	{
+		const FVector2D Value = InputActionValue.Get<FVector2D>();
+		const FRotator MovementRotation(0.0f, Controller->GetControlRotation().Yaw, 0.0f);
+
+		if (Value.X != 0.0f)
+		{
+			const FVector MovementDirection = MovementRotation.RotateVector(FVector::ForwardVector);
+			Pawn->AddMovementInput(MovementDirection, Value.X);
+		}
+
+		if (Value.Y != 0.0f)
+		{
+			const FVector MovementDirection = MovementRotation.RotateVector(FVector::RightVector);
+			Pawn->AddMovementInput(MovementDirection, Value.Y);
+		}
+	}
+}
+
+void UCm_HeroComponent::Input_LookMouse(const FInputActionValue& InputActionValue)
+{
+	APawn* Pawn = GetPawn<APawn>();
+	if (!Pawn)
+	{
+		return;
+	}
+
+	const FVector2D Value = InputActionValue.Get<FVector2D>();
+	if (Value.X != 0.0f)
+	{
+		// X에는 Yaw 값이 있음:
+		// - Camera에 대해 Yaw 적용
+		Pawn->AddControllerYawInput(Value.X);
+	}
+
+	if (Value.Y != 0.0f)
+	{
+		// Y에는 Pitch 값!
+		double AimInversionValue = -Value.Y;
+		Pawn->AddControllerPitchInput(AimInversionValue);
+	}
 }
 
 void UCm_HeroComponent::BindOnActorInitStateChanged(FName FeatureName, FGameplayTag RequiredState, bool bCallIfReached)

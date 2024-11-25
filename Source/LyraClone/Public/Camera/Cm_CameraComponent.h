@@ -36,7 +36,7 @@ public:
 
 	AActor* GetTargetActor() const {return GetOwner();}
 	
-
+	UPROPERTY()
 	TObjectPtr<UCm_CameraModeStack> CameraModeStack;
 
 	FCm_CameraModeDelegate DetermineCameraModeDelegate; 

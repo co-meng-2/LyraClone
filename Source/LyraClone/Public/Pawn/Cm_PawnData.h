@@ -6,6 +6,7 @@
 #include "Engine/DataAsset.h"
 #include "Cm_PawnData.generated.h"
 
+class UCm_InputConfig;
 class UCm_CameraMode;
 /**
  * 
@@ -21,4 +22,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Cm|Camera")
 	TSubclassOf<UCm_CameraMode> DefaultCameraModeClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Cm|Input")
+	TObjectPtr<UCm_InputConfig> Inputconfig;
 };

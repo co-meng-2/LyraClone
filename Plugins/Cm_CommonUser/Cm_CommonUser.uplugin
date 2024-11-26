@@ -1,0 +1,24 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "Cm_CommonUser",
+	"Description": "",
+	"Category": "Other",
+	"CreatedBy": "Comange",
+	"CreatedByURL": "",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "Cm_CommonUser",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}

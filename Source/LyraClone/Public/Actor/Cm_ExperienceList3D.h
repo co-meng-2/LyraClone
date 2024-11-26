@@ -24,8 +24,6 @@ protected:
 private:
 	TArray<TObjectPtr<UCm_UserFacingExperience>> Arr_UserFacingExperiences;
 	
-	TSharedPtr<FStreamableHandle> Handle_OnLoadComplete;
-	
 	UPROPERTY(EditDefaultsOnly, Category="Cm")
 	float Offset{20.f};
 	

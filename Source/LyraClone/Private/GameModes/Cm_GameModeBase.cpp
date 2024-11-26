@@ -9,6 +9,7 @@
 #include "GameModes/Cm_ExperienceDefinition.h"
 #include "GameModes/Cm_ExperienceManagerComponent.h"
 #include "GameModes/Cm_GameStateBase.h"
+#include "Kismet/GameplayStatics.h"
 #include "Player/Cm_PlayerController.h"
 #include "Player/Cm_PlayerState.h"
 #include "Pawn/Cm_PawnData.h"
@@ -37,6 +38,13 @@ void ACm_GameModeBase::HandleMatchAssignmentIfNotExpectingOne()
 
 	// Lyra에서는 여러 분기로 이루어짐.
 
+	if(!ExperienceId.IsValid() && UGameplayStatics::HasOption(OptionsString, L"Experience"))
+	{
+		const FString ExperienceFromOptions{UGameplayStatics::ParseOption(OptionsString, L"Experience")};
+		ExperienceId = FPrimaryAssetId(FPrimaryAssetType(UCm_ExperienceDefinition::StaticClass()->GetFName()), FName(ExperienceFromOptions));
+	}
+		
+	
 	if(!ExperienceId.IsValid())
 	{
 		// FPrimaryAssetId는 유형(Type)과 이름(Name)으로 고유하게 Asset을 식별할 수 있다.

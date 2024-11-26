@@ -20,7 +20,8 @@ public:
 	{
 		UserFacingExperience = InUserFacingExperience;
 	};
-	
+
 private:
+	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = true))
 	TObjectPtr<const UCm_UserFacingExperience> UserFacingExperience;
 };

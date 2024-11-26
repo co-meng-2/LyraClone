@@ -14,6 +14,7 @@
 #include "Player/Cm_PlayerController.h"
 
 const FName UCm_HeroComponent::NAME_ActorFeatureName{"Hero"};
+const FName UCm_HeroComponent::NAME_BindInputsNow("BindInputsNow");
 
 UCm_HeroComponent::UCm_HeroComponent(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -247,6 +248,8 @@ void UCm_HeroComponent::InitializePlayerInput(UInputComponent* PlayerInputCompon
 			}
 		}
 	}
+
+	UGameFrameworkComponentManager::SendGameFrameworkComponentExtensionEvent(const_cast<APawn*>(Pawn), NAME_BindInputsNow);
 }
 
 void UCm_HeroComponent::Input_Move(const FInputActionValue& InputActionValue)

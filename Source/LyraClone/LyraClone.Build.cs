@@ -20,6 +20,7 @@ public class LyraClone : ModuleRules
 			"GameplayTags",
 			"GameplayAbilities",
 			"UMG",
+			"Cm_CommonUser"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]

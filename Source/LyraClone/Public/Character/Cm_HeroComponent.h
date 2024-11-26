@@ -22,6 +22,7 @@ public:
 	UCm_HeroComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	static const FName NAME_ActorFeatureName;
+	static const FName NAME_BindInputsNow;
 
 	// ~Begin GameFrameWorkComponent Interface
 	virtual void OnRegister() override;

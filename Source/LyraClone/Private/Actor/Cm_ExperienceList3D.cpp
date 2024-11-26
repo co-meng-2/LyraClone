@@ -14,7 +14,9 @@ ACm_ExperienceList3D::ACm_ExperienceList3D()
 void ACm_ExperienceList3D::OnPrimaryAssetListLoaded()
 {
 	TArray<UObject*> Arr_Loaded;
-	Handle_OnLoadComplete->GetLoadedAssets(Arr_Loaded);
+	UAssetManager& AssetManager{UAssetManager::Get()};
+	AssetManager.GetPrimaryAssetObjectList(L"Cm_UserFacingExperience", Arr_Loaded);
+	
 	FVector Loc_ActorLoc{GetActorLocation()};
 	FVector Loc_ActorLeftDir{-GetActorRightVector()};
 	FVector Loc_SpawnStartLoc{Loc_ActorLoc + Loc_ActorLeftDir * (Arr_Loaded.Num() - 1) * Offset / 2.f};
@@ -28,7 +30,6 @@ void ACm_ExperienceList3D::OnPrimaryAssetListLoaded()
 		NewActor->SetUserfacingExperience(Cast<UCm_UserFacingExperience>(Elem));
 		Loc_SpawnStartLoc += -Loc_ActorLeftDir * Offset;
 	}
-	Handle_OnLoadComplete = nullptr;
 }
 
 // DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPrimaryAssetListLoaded, const TArray<UObject*>&, Loaded);
@@ -44,19 +45,7 @@ void ACm_ExperienceList3D::BeginPlay()
 	if(bool Success{AssetManager.GetPrimaryAssetIdList(FPrimaryAssetType(L"Cm_UserFacingExperience"), Loc_Arr_PrimaryAssetId)})
 	{
 		// AssetManager에 Id List를 줘서 AsyncLoad하고 이에 대해 결과를 받을 Handle을 등록한다.
-		Handle_OnLoadComplete = AssetManager.LoadPrimaryAssets(Loc_Arr_PrimaryAssetId);
-		if(Handle_OnLoadComplete.IsValid())
-		{
-			// 이미 Load완료된 경우 Load가 완료되었을 때 실행할 함수를 실행한다.
-			if(Handle_OnLoadComplete->HasLoadCompleted())
-			{
-				OnPrimaryAssetListLoaded();	
-			}
-			// Delegate로 Complete되었을 때 실행할 함수를 등록한다.
-			else
-			{
-				Handle_OnLoadComplete->BindCompleteDelegate(FStreamableDelegate::CreateUObject(this, &ThisClass::OnPrimaryAssetListLoaded));	
-			}
-		}
+		AssetManager.LoadPrimaryAssets(Loc_Arr_PrimaryAssetId, TArray<FName>(),
+			FStreamableDelegate::CreateUObject(this, &ThisClass::OnPrimaryAssetListLoaded));
 	}
 }
